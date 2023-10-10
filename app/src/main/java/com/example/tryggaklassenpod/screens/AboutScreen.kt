@@ -13,7 +13,9 @@ import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -32,7 +34,8 @@ import com.example.tryggaklassenpod.ui.theme.*
 fun AboutScreen(navController: NavController){
 
     Column (
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.padding(10.dp))
@@ -69,6 +72,18 @@ fun AboutScreen(navController: NavController){
 
         Spacer(modifier = Modifier.padding(5.dp))
         TextWithLink(txt = "Trggaklassen", lnk = "https://tryggaklassen.se/")
+
+        Spacer(modifier = Modifier.padding(15.dp))
+        Image(
+            painter = painterResource(id = R.drawable.placeholder),
+            contentDescription = "logo",
+            modifier = Modifier.fillMaxWidth(.6f),
+        )
+
+        Spacer(modifier = Modifier.padding(5.dp))
+        TextWithLink(txt = "placeholder", lnk = "https://google.com/")
+
+        Spacer(modifier = Modifier.padding(15.dp))
     }
 }
 
