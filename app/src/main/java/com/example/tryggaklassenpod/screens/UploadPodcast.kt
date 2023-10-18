@@ -1,5 +1,6 @@
 package com.example.tryggaklassenpod.screens
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,7 +35,15 @@ import android.media.MediaPlayer
 import androidx.compose.foundation.layout.Column
 import com.example.tryggaklassenpod.helperFunctions.Authentication
 import com.example.tryggaklassenpod.helperFunctions.ImageUploader
-import com.google.firebase.database.core.Context
+import android.widget.Toast
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import com.example.tryggaklassenpod.MainActivity
+import com.example.tryggaklassenpod.helperFunctions.getNextId
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import java.security.AccessController.getContext
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,12 +58,16 @@ fun UploadPodcast(navController: NavController) {
     var isUploading by remember { mutableStateOf(false) }
     var duration by remember { mutableStateOf("") }
     val durationInt = duration.toIntOrNull() ?: 0 // Convert the duration to an integer, defaulting to 0 if the input is not a valid number
-
-
+    var imageLatestUrl by remember { mutableStateOf("") }
+    var audioLatestUrl by remember { mutableStateOf("") }
     val database = FirebaseDatabase.getInstance()
-    val databaseReference = database.getReference("podcasts")
+    // Create a root reference
+    val databaseReference = database.getReference("podcast")
     val storage = FirebaseStorage.getInstance()
     val storageReference = storage.getReference("podcasts")
+    val context = LocalContext.current
+
+    val audioCoroutineScope = rememberCoroutineScope()
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { audioUri: Uri? ->
@@ -65,47 +79,81 @@ fun UploadPodcast(navController: NavController) {
 
             val audioStorageRef = storageReference.child("audios/${selectedFileName}")
             storageLocationUrl = audioStorageRef.toString()
-            Log.d("YourTag", "downloadUrl: $storageLocationUrl")
+            Log.d("YourTag", "AudiodownloadUrl: $storageLocationUrl")
 
             val audioUploader = AudioUploader(storageReference)
-
 
             // Call the uploadAudio function with the selected audioUri
             audioUploader.uploadAudio(audioUri) { newDownloadUrl ->
                 // Handle the download URL here if needed
                 if (newDownloadUrl != null) {
                     downloadUrl = newDownloadUrl.toString()
-                    Log.d("YourTag", "downloadUrl: $downloadUrl")
+                    Log.d("YourTag", "AudiodownloadUrlsss: $downloadUrl")
                     // The audio has been uploaded successfully, and downloadUrl contains the URL
+                }
+                // Use coroutines to await the downloadUrl task
+                audioCoroutineScope.launch {
+                    try {
+                        val uri = audioStorageRef.downloadUrl.await()  // await the result
+                        audioLatestUrl = uri.toString()
+                        Log.d("AudioInSuccessLatestUrll", "AudioLatestUrl:$audioLatestUrl")
+
+                        // Continue with your next logic here...
+
+                    } catch (e: Exception) {
+                        Log.e("imageError", "Error fetching image URL: ${e.localizedMessage}")
+                    }
                 }
             }
         }
     }
+   //image launching, saving and converting the storage location
+    val coroutineScope = rememberCoroutineScope()
+
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { imageUri: Uri? ->
         if (imageUri != null) {
             Log.d("YourTag", "imageUri: $imageUri")
-            // Set the selectedImageFileName to the name of the selected image file
             selectedImageFileName = imageUri.lastPathSegment
             val imageStorageRef = storageReference.child("images/${selectedImageFileName}")
             imageUrl = imageStorageRef.toString()
+
+            Log.d("Image Url", "imageUrl: $imageUrl")
+
+//            val email = "anam@example.com"
+//            val password = "password"
+
+//            val imageUploader = ImageUploader(storageReference, Authentication())
+//            imageUploader.uploadImage(podcastName, email, password, imageUri) { newDownloadUrl ->
 
             val imageUploader = ImageUploader(storageReference)
             // Call the uploadAudio function with the selected audioUri
             imageUploader.uploadImage(imageUri) { newDownloadUrl ->
                 // Handle the download URL here if needed
+
                 if (newDownloadUrl != null) {
                     downloadUrl = newDownloadUrl.toString()
-                    Log.d("YourTag", "downloadUrl: $downloadUrl")
-                    // The image has been uploaded successfully, and downloadUrl contains the URL
+                    Log.d("DownloadUrl", "downloadUrl: $downloadUrl")
+                }
+
+                // Use coroutines to await the downloadUrl task
+                coroutineScope.launch {
+                    try {
+                        val ins = FirebaseStorage.getInstance()
+                        val imageRef = ins.getReferenceFromUrl(imageUrl)
+                        val uri = imageRef.downloadUrl.await()  // await the result
+                        imageLatestUrl = uri.toString()
+                        Log.d("imageInSuccessLatestUrl", "imageLatestUrl:$imageLatestUrl")
+
+
+                    } catch (e: Exception) {
+                        Log.e("imageError", "Error fetching image URL: ${e.localizedMessage}")
+                    }
                 }
             }
-
         }
-
     }
-
 
     Column(
         modifier = Modifier.padding(16.dp)
@@ -171,9 +219,10 @@ fun UploadPodcast(navController: NavController) {
             OutlinedTextField(
                 value = selectedFileName!!,
                 onValueChange = { /* No-op, as this is read-only */ },
-                modifier = Modifier.fillMaxWidth().padding(8.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
             )
-//
         }
         Button(
             onClick = {
@@ -210,37 +259,43 @@ fun UploadPodcast(navController: NavController) {
             Button(
                 onClick = {
                     if (downloadUrl.isNotEmpty()) {
-                        val newEpisodeReference = databaseReference
-                            .child("episodes")
-                            .push()
+                        // Get the next available ID
+                        getNextId { newId ->
+                            val newEpisodeReference = databaseReference
+                                .child("episodes")
+                                .child(newId.toString())
+                            Log.d("newIdinUpload","newId$newId")
 
-                        // Create episode data
-                        val episodeData = Episode(
-                            id = 112,
-                            episodeUrl = storageLocationUrl,
-                            duration = durationInt,
-                            imageUrl = imageUrl,
-                            title = podcastName,
-                            description = podcastDescription,
-                        )
-
-                        // Set episode data
-                        newEpisodeReference.setValue(episodeData).addOnSuccessListener {
-                            podcastName = ""
-                            podcastDescription = ""
-                            duration = ""
-                            selectedFileName = null
-                            selectedImageFileName = null
-                        }.addOnFailureListener { exception ->
-                            Log.e("YourTag", "Error adding episode: ${exception.message}")
+                            // Create episode data
+                            val episodeData = Episode(
+                                id = newId,
+                                episodeUrl = audioLatestUrl,
+                                duration = durationInt,
+                                imageUrl = imageLatestUrl,
+                                title = podcastName,
+                                description = podcastDescription,
+                            )
+                            // Set episode data
+                            newEpisodeReference.setValue(episodeData).addOnSuccessListener {
+                                podcastName = ""
+                                podcastDescription = ""
+                                duration = ""
+                                selectedFileName = null
+                                selectedImageFileName = null
+                                Toast.makeText(context, "Upload successful", Toast.LENGTH_SHORT).show()
+                            }.addOnFailureListener { exception ->
+                                Log.e("YourTag", "Error loading: ${exception.message}")
+                            }
                         }
-                    }else {
+                    } else {
                         isUploading = false // Hide the loading indicator
                     }
                 }
             ) {
                 Text(text = "Done")
             }
+
         }
-    }
-}
+                }
+            }
+

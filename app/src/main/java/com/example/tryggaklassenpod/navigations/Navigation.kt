@@ -12,8 +12,12 @@ import com.example.tryggaklassenpod.screens.AboutScreen
 import com.example.tryggaklassenpod.screens.HomeScreen
 import com.example.tryggaklassenpod.screens.LoginScreen
 import com.example.tryggaklassenpod.screens.AdminScreen
+import com.example.tryggaklassenpod.screens.CommentReviewScreen
 import com.example.tryggaklassenpod.screens.UploadPodcast
+import com.example.tryggaklassenpod.screens.EditPodcasts
+import com.example.tryggaklassenpod.screens.PodcastsList
 import com.example.tryggaklassenpod.screens.PlayerScreen
+import com.example.tryggaklassenpod.screens.CommentReviewScreen
 import com.example.tryggaklassenpod.screens.PodcastViewModel
 
 
@@ -24,8 +28,7 @@ fun Navigation() {
 
     val podcastViewModel: PodcastViewModel = viewModel()
 
-    NavHost(navController = navController, startDestination = Screen.LoginScreen.route){
-
+    NavHost(navController = navController, startDestination = Screen.HomeScreen.route){
 
         composable(route = Screen.HomeScreen.route){
             HomeScreen(podcastUiState = podcastViewModel.podcastUiState, navController = navController)
@@ -43,10 +46,40 @@ fun Navigation() {
             UploadPodcast(navController = navController)
         }
 
-        composable(route = Screen.LoginScreen.route) {
-            LoginScreen(navController = navController)
+        composable(route = Screen.PodcastsList.route){
+            PodcastsList(navController = navController)
         }
 
+        composable(route = Screen.EditPodcasts.route){
+                backStackEntry ->
+            val podcastId = backStackEntry.arguments?.getString("podcastId") ?: ""
+            EditPodcasts(navController = navController, podcastId = podcastId)
+        }
+        composable(
+            route = "${Screen.EditPodcasts.route}/{podcastId}",
+            arguments = listOf(
+                navArgument(name = "podcastId") {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val podcastId = backStackEntry.arguments?.getString("podcastId")
+            EditPodcasts(
+                navController = navController,
+                podcastId = podcastId ?: ""
+            )
+        }
+        composable(
+            route = Screen.CommentReviewScreen.route
+        ) { backStackEntry ->
+            val episodeId = backStackEntry.arguments?.getString("episodeId")?.toIntOrNull() ?: 0
+            CommentReviewScreen(episodeId = episodeId)
+            }
+
+        composable(route = Screen.LoginScreen.route) {
+            LoginScreen(navController = navController)
+
+        }
 
         composable(
             route = "${Screen.PlayerScreen.route}/{episodeId}",
@@ -67,3 +100,4 @@ fun Navigation() {
         }
     }
 }
+
