@@ -127,7 +127,6 @@ fun LoginScreen(navController: NavController) {
                             loggedIn = true
 
                             if (role == "admin") {
-                                // Navigate to the admin screen right here
                                 navController.navigate(Screen.AdminScreen.route)
                             }
                         } else {
@@ -138,13 +137,6 @@ fun LoginScreen(navController: NavController) {
                 modifier = Modifier.padding(8.dp),
             ) {
                 Text(text = "Login")
-            }
-
-            if (loggedIn) {
-                Text(
-                    text = "Logged in as: $username\nRole: $userRole",
-                    modifier = Modifier.padding(8.dp)
-                )
             }
         }
     }
@@ -165,16 +157,26 @@ private fun authenticateUser(username: String, password: String, onAuthenticatio
                     Log.i(TAG, "Fetched adminData: $adminData")
                     if (adminData != null) {
                         val passwordMap = adminData.password
-                        val hashedPassword = passwordMap?.get("hashedPassword")
+                        val hashedPassword = passwordMap?.get("hashedPass")
                         val salt = passwordMap?.get("salt")
-                        Log.i(TAG, "Authentication successful")
-                        onAuthenticationResult(true, adminData.role)
-                        return  // Found a match, exit the loop
+                        if (hashedPassword != null && salt != null) {
+                            if (PasswordHash.hashAndComparePassword(password, salt, hashedPassword)) {
+                                Log.i(TAG, "Password is correct")
+                                onAuthenticationResult(true, adminData.role)
+                            } else {
+                                Log.i(TAG, "Password is Incorrect")
+                                onAuthenticationResult(false, null)
+                            }
+                        } else {
+                            Log.i(TAG, "Password or salt is not found ")
+                            onAuthenticationResult(false, null)
+                        }
+                    } else {
+                        Log.i(TAG, "adminData is null")
+                        onAuthenticationResult(false, null)
                     }
                 }
             }
-            // No match found for the provided username and password
-            onAuthenticationResult(false, null)
         }
 
         override fun onCancelled(error: DatabaseError) {
