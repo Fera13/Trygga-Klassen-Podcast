@@ -82,6 +82,7 @@ fun LoginScreen(navController: NavController) {
                     username = newUsername
                     userRole = null
                     loggedIn = false
+                    showError = false
                 },
                 label = { Text(text = "Username") },
                 textStyle = TextStyle(color = Color.Black),
@@ -96,7 +97,9 @@ fun LoginScreen(navController: NavController) {
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    showError = false},
                 label = { Text(text = "Password") },
                 textStyle = TextStyle(color = Color.Black),
                 keyboardOptions = KeyboardOptions(
@@ -142,7 +145,6 @@ fun LoginScreen(navController: NavController) {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 private fun authenticateUser(username: String, password: String, onAuthenticationResult: (Boolean, String?) -> Unit) {
     val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("admins")
 
@@ -152,6 +154,9 @@ private fun authenticateUser(username: String, password: String, onAuthenticatio
             Log.i(TAG, "Query successful")
             if (snapshot.exists()) {
                 Log.i(TAG, "Snapshot exist")
+                var isAuthenticated = false
+                var userRole: String? = null
+
                 for (childSnapshot in snapshot.children) {
                     val adminData = childSnapshot.getValue(LoginDataClass::class.java)
                     Log.i(TAG, "Fetched adminData: $adminData")
@@ -162,20 +167,28 @@ private fun authenticateUser(username: String, password: String, onAuthenticatio
                         if (hashedPassword != null && salt != null) {
                             if (PasswordHash.hashAndComparePassword(password, salt, hashedPassword)) {
                                 Log.i(TAG, "Password is correct")
-                                onAuthenticationResult(true, adminData.role)
+                                isAuthenticated = true
+                                userRole = adminData.role
+                                break // Exit the loop once a valid user is found
                             } else {
                                 Log.i(TAG, "Password is Incorrect")
-                                onAuthenticationResult(false, null)
                             }
                         } else {
-                            Log.i(TAG, "Password or salt is not found ")
-                            onAuthenticationResult(false, null)
+                            Log.i(TAG, "Password or salt is not found")
                         }
                     } else {
                         Log.i(TAG, "adminData is null")
-                        onAuthenticationResult(false, null)
                     }
                 }
+
+                if (isAuthenticated) {
+                    onAuthenticationResult(true, userRole)
+                } else {
+                    onAuthenticationResult(false, null)
+                }
+            } else {
+                Log.i(TAG, "Snapshot does not exist")
+                onAuthenticationResult(false, null)
             }
         }
 
