@@ -1,5 +1,10 @@
 package com.example.tryggaklassenpod.screens
 
+import android.content.ContentValues
+import android.content.ContentValues.TAG
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,13 +35,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tryggaklassenpod.R
+import com.example.tryggaklassenpod.dataClasses.AdminDataClass
+import com.example.tryggaklassenpod.dataClasses.LoginDataClass
+import com.example.tryggaklassenpod.helperFunctions.PasswordHash
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
-
-
-private val database: DatabaseReference = Firebase.database.reference.child("admins")
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -117,17 +127,15 @@ fun LoginScreen(navController: NavController) {
                             loggedIn = true
 
                             if (role == "admin") {
-                                // Navigate to the admin screen
+                                // Navigate to the admin screen right here
                                 navController.navigate(Screen.AdminScreen.route)
                             }
-
                         } else {
                             showError = true
                         }
                     }
                 },
-                modifier = Modifier
-                    .padding(8.dp),
+                modifier = Modifier.padding(8.dp),
             ) {
                 Text(text = "Login")
             }
@@ -142,17 +150,37 @@ fun LoginScreen(navController: NavController) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 private fun authenticateUser(username: String, password: String, onAuthenticationResult: (Boolean, String?) -> Unit) {
+    val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("admins")
 
-    database.child(username).get().addOnSuccessListener { dataSnapshot ->
-        val userData = dataSnapshot.value as? Map<String, Any>
-        if (userData != null && userData["password"] == password) {
-            val role = userData["role"] as? String
-            onAuthenticationResult(true, role)
-        } else {
+    Log.i(TAG, "Before database query")
+    database.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.i(TAG, "Query successful")
+            if (snapshot.exists()) {
+                Log.i(TAG, "Snapshot exist")
+                for (childSnapshot in snapshot.children) {
+                    val adminData = childSnapshot.getValue(LoginDataClass::class.java)
+                    Log.i(TAG, "Fetched adminData: $adminData")
+                    if (adminData != null) {
+                        val passwordMap = adminData.password
+                        val hashedPassword = passwordMap?.get("hashedPassword")
+                        val salt = passwordMap?.get("salt")
+                        Log.i(TAG, "Authentication successful")
+                        onAuthenticationResult(true, adminData.role)
+                        return  // Found a match, exit the loop
+                    }
+                }
+            }
+            // No match found for the provided username and password
             onAuthenticationResult(false, null)
         }
-    }.addOnFailureListener { exception ->
-        onAuthenticationResult(false, null)
-    }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.e(TAG, "Database query cancelled: ${error.message}")
+            onAuthenticationResult(false, null)
+        }
+    })
 }
+

@@ -8,7 +8,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -36,10 +35,10 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.dataClasses.AdminDataClass
 import com.example.tryggaklassenpod.helperFunctions.PasswordHash
@@ -52,7 +51,7 @@ import com.example.tryggaklassenpod.viewModels.OwnerPageViewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OwnerPageContent(modifier: Modifier = Modifier){
+fun OwnerPageContent(modifier: Modifier = Modifier, navController: NavHostController){
     val viewModel: OwnerPageViewModel = viewModel()
     Box(
         modifier = Modifier

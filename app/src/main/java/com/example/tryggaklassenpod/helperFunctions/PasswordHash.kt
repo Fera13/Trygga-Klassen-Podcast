@@ -1,6 +1,8 @@
 package com.example.tryggaklassenpod.helperFunctions
 
+import android.content.ContentValues.TAG
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -30,5 +32,23 @@ object PasswordHash {
 
         return Pair(hashedPassword.toString(), salt)
     }
+
+    fun hashAndComparePassword(inputPassword: String, storedSalt: String, storedHashedPassword: String): Boolean {
+        val data = inputPassword + storedSalt
+        val digest = MessageDigest.getInstance("SHA-256")
+        val bytes = digest.digest(data.toByteArray())
+
+        val hashedPassword = StringBuilder()
+        for (byte in bytes) {
+            hashedPassword.append(String.format("%02x", byte))
+        }
+
+        Log.i(TAG, "Input Password Hashed: $hashedPassword")
+        Log.i(TAG, "Stored Hashed Password: $storedHashedPassword")
+
+        return hashedPassword.toString() == storedHashedPassword
+    }
 }
+
+
 
