@@ -47,11 +47,14 @@ fun PlayerScreen(
             onRetry = {},
             buttonIncluded = false
         )
-    } else {
+    }
+    else {
+
         val episode: Episode? = episodeId?.let { viewModel.getEpisodeById(it) }
         if (episode != null) {
             viewModel.episodeUrl = episode.episodeUrl
             viewModel.player.preloadEpisode(episode.episodeUrl)
+            viewModel.episodeFullDuration = viewModel.player.getFullDuration()
         }
 
         DisposableEffect(episodeId) {
@@ -61,6 +64,7 @@ fun PlayerScreen(
                 viewModel.episodeUrl = ""
                 viewModel.newPosition = 0
                 viewModel.sliderPosition = 0.0f
+                viewModel.episodeFullDuration = 0
             }
         }
 
@@ -106,8 +110,7 @@ fun PlayerScreen(
                             episode?.episodeUrl?.let {
                                 PlayerControllerArea(
                                     episodeUrl = it,
-                                    episodeDuration = episode.duration,
-                                    viewModel = viewModel
+                                     viewModel = viewModel
                                 )
                             }
                             Spacer(modifier = Modifier.height(28.dp))
