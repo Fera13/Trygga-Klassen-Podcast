@@ -121,11 +121,6 @@ fun UploadPodcast(navController: NavController) {
 
             Log.d("Image Url", "imageUrl: $imageUrl")
 
-//            val email = "anam@example.com"
-//            val password = "password"
-
-//            val imageUploader = ImageUploader(storageReference, Authentication())
-//            imageUploader.uploadImage(podcastName, email, password, imageUri) { newDownloadUrl ->
 
             val imageUploader = ImageUploader(storageReference)
             // Call the uploadAudio function with the selected audioUri
