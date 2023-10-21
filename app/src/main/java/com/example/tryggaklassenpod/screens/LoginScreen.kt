@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.dataClasses.AdminDataClass
 import com.example.tryggaklassenpod.dataClasses.LoginDataClass
+import com.example.tryggaklassenpod.dataClasses.SuperUserDataClass
 import com.example.tryggaklassenpod.helperFunctions.PasswordHash
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -99,7 +100,8 @@ fun LoginScreen(navController: NavController) {
                 value = password,
                 onValueChange = {
                     password = it
-                    showError = false},
+                    showError = false
+                },
                 label = { Text(text = "Password") },
                 textStyle = TextStyle(color = Color.Black),
                 keyboardOptions = KeyboardOptions(
@@ -124,13 +126,13 @@ fun LoginScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    authenticateUser(username, password) { isAuthenticated, role ->
+                    authenticateUser(username, password, navController) { isAuthenticated, role ->
                         if (isAuthenticated) {
-                            userRole = role
-                            loggedIn = true
-
-                            if (role == "admin") {
-                                navController.navigate(Screen.AdminScreen.route)
+                            when (role) {
+                                "admin" -> {
+                                    // Route to the AdminScreen for admin
+                                    navController.navigate("AdminScreen")
+                                }
                             }
                         } else {
                             showError = true
@@ -142,10 +144,12 @@ fun LoginScreen(navController: NavController) {
                 Text(text = "Login")
             }
         }
+
     }
 }
 
-private fun authenticateUser(username: String, password: String, onAuthenticationResult: (Boolean, String?) -> Unit) {
+
+private fun authenticateUser(username: String, password: String,navController: NavController, onAuthenticationResult: (Boolean, String?) -> Unit) {
     val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("admins")
 
     Log.i(TAG, "Before database query")
@@ -186,9 +190,24 @@ private fun authenticateUser(username: String, password: String, onAuthenticatio
                 } else {
                     onAuthenticationResult(false, null)
                 }
-            } else {
-                Log.i(TAG, "Snapshot does not exist")
-                onAuthenticationResult(false, null)
+
+            } else if (!snapshot.exists()) {
+                // Check if the user is the "superuser"
+                Log.e(TAG, "Checking for superuser")
+                checkForSuperuser(username, password) { isSuperuser, role ->
+                    if (isSuperuser) {
+                        Log.e(TAG, "Is Superuser")
+                        when (role) {
+                            "superuser" -> {
+                                // Route to the OwnerScreen for superuser
+                                navController.navigate("OwnerScreen")
+                            }
+                        }
+                        onAuthenticationResult(true, "superuser")
+                    } else {
+                        onAuthenticationResult(false, null)
+                    }
+                }
             }
         }
 
@@ -198,4 +217,27 @@ private fun authenticateUser(username: String, password: String, onAuthenticatio
         }
     })
 }
+
+private fun checkForSuperuser(username: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    val superuserDatabase: DatabaseReference = Firebase.database.reference.child("superusers")
+    Log.d(TAG, "database path: $superuserDatabase")
+    Log.d(TAG, "Checking superuser database for username: $username")
+    superuserDatabase.child("id1").get().addOnSuccessListener { dataSnapshot ->
+        val userData = dataSnapshot.value as? Map<String, Any>
+        Log.d(TAG, "Data retrieved for username: $userData")
+
+        if (userData != null && userData["password"] == password) {
+            val role = userData["role"] as? String
+            Log.d(TAG, "Authentication successful for username: $username")
+            onResult(true, role)
+        } else {
+            Log.d(TAG, "Authentication failed for username: $username")
+            onResult(false, null)
+        }
+    }.addOnFailureListener { exception ->
+        Log.e(TAG, "Error when checking for superuser: $exception")
+        onResult(false, null)
+    }
+}
+
 
