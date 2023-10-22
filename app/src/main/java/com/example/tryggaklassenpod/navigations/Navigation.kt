@@ -19,10 +19,9 @@ import com.example.tryggaklassenpod.screens.UploadPodcast
 import com.example.tryggaklassenpod.screens.EditPodcasts
 import com.example.tryggaklassenpod.screens.PodcastsList
 import com.example.tryggaklassenpod.screens.PlayerScreen
-import com.example.tryggaklassenpod.screens.CommentReviewScreen
 import com.example.tryggaklassenpod.screens.PodcastViewModel
 import com.example.tryggaklassenpod.screens.OwnerPageContent
-
+import com.example.tryggaklassenpod.screens.viewComments
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -52,7 +51,9 @@ fun Navigation() {
         composable(route = Screen.PodcastsList.route){
             PodcastsList(navController = navController)
         }
-
+        composable(route = Screen.CommentReviewScreen.route){
+            CommentReviewScreen(navController = navController)
+        }
         composable(route = Screen.EditPodcasts.route){
                 backStackEntry ->
             val podcastId = backStackEntry.arguments?.getString("podcastId") ?: ""
@@ -72,12 +73,19 @@ fun Navigation() {
                 podcastId = podcastId ?: ""
             )
         }
+
         composable(
-            route = Screen.CommentReviewScreen.route
+            route = "${Screen.ViewComments.route}/{episodeId}",
+            arguments = listOf(
+                navArgument("episodeId") { type = NavType.IntType }
+            )
         ) { backStackEntry ->
-            val episodeId = backStackEntry.arguments?.getString("episodeId")?.toIntOrNull() ?: 0
-            CommentReviewScreen(episodeId = episodeId)
+            val episodeId = backStackEntry.arguments?.getInt("episodeId")
+            if (episodeId != null) {
+                viewComments(episodeId)
             }
+        }
+
 
         composable(route = Screen.LoginScreen.route) {
             LoginScreen(navController = navController)
