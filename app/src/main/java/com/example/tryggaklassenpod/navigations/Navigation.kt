@@ -32,12 +32,8 @@ fun Navigation() {
 
     val podcastViewModel: PodcastViewModel = viewModel()
 
-<<<<<<< HEAD
-    NavHost(navController = navController, startDestination = Screen.LoginScreen.route){
-
-=======
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route){
->>>>>>> 6461627e6261f9432d6ce5dc7aac06d2247eb389
+
         composable(route = Screen.HomeScreen.route){
             HomeScreen(podcastUiState = podcastViewModel.podcastUiState, navController = navController)
         }
@@ -86,11 +82,6 @@ fun Navigation() {
 
         composable(route = Screen.LoginScreen.route) {
             LoginScreen(navController = navController)
-
-        }
-
-        composable(route = Screen.OwnerScreen.route) {
-            OwnerPageContent(navController = navController)
 
         }
 
