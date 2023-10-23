@@ -46,6 +46,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.example.tryggaklassenpod.helperFunctions.generateSuperuserPassword
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +58,8 @@ fun LoginScreen(navController: NavController) {
     var userRole by remember { mutableStateOf<String?>(null) }
     var loggedIn by remember { mutableStateOf(false) }
     var passwordVisibility by remember { mutableStateOf(false) }
+    //generateSuperuserPassword()
+
 
 
     Surface(
@@ -239,24 +242,35 @@ private fun authenticateUser(username: String, password: String,navController: N
 
 private fun checkForSuperuser(username: String, password: String, onResult: (Boolean, String?) -> Unit) {
     val superuserDatabase: DatabaseReference = Firebase.database.reference.child("superusers")
-    Log.d(TAG, "database path: $superuserDatabase")
     Log.d(TAG, "Checking superuser database for username: $username")
-    superuserDatabase.child("id1").get().addOnSuccessListener { dataSnapshot ->
-        val userData = dataSnapshot.value as? Map<String, Any>
-        Log.d(TAG, "Data retrieved for username: $userData")
-
-        if (userData != null && userData["password"] == password) {
-            val role = userData["role"] as? String
-            Log.d(TAG, "Authentication successful for username: $username")
-            onResult(true, role)
-        } else {
-            Log.e(TAG, "Authentication failed for username: $username")
+    superuserDatabase.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            if (snapshot.exists()) {
+                for (childSnapshot in snapshot.children) {
+                    val superuserData = childSnapshot.getValue(LoginDataClass::class.java)
+                    if (superuserData != null) {
+                        val passwordMap = superuserData.password
+                        val hashedPassword = passwordMap?.get("hashedPass")
+                        val salt = passwordMap?.get("salt")
+                        if (hashedPassword != null && salt != null) {
+                            if (PasswordHash.hashAndComparePassword(password, salt, hashedPassword)) {
+                                val role = superuserData.role
+                                onResult(true, role)
+                                return
+                            }
+                        }
+                    }
+                }
+            }
+            Log.d(TAG, "The superuser is npt found or no math with password")
             onResult(false, null)
         }
-    }.addOnFailureListener { exception ->
-        Log.e(TAG, "Error when checking for superuser: $exception")
-        onResult(false, null)
-    }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.d(TAG, "Database query cancelled: ${error.message}")
+            onResult(false, null)
+        }
+    })
 }
 
 
