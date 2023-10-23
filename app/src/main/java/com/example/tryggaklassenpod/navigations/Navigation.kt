@@ -19,7 +19,7 @@ import com.example.tryggaklassenpod.screens.UploadPodcast
 import com.example.tryggaklassenpod.screens.EditPodcasts
 import com.example.tryggaklassenpod.screens.PodcastsList
 import com.example.tryggaklassenpod.screens.PlayerScreen
-import com.example.tryggaklassenpod.screens.OwnerPageContent
+import com.example.tryggaklassenpod.screens.CommentReviewScreen
 import com.example.tryggaklassenpod.screens.PodcastViewModel
 import com.example.tryggaklassenpod.screens.OwnerPageContent
 
@@ -33,7 +33,6 @@ fun Navigation() {
     val podcastViewModel: PodcastViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route){
-
         composable(route = Screen.HomeScreen.route){
             HomeScreen(podcastUiState = podcastViewModel.podcastUiState, navController = navController)
         }
@@ -78,7 +77,7 @@ fun Navigation() {
         ) { backStackEntry ->
             val episodeId = backStackEntry.arguments?.getString("episodeId")?.toIntOrNull() ?: 0
             CommentReviewScreen(episodeId = episodeId)
-            }
+        }
 
         composable(route = Screen.LoginScreen.route) {
             LoginScreen(navController = navController)

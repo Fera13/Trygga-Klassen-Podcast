@@ -24,9 +24,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,7 +42,7 @@ val showAdmins = OwnerPageShowEditAdmin()
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun OwnerPageContent(modifier: Modifier = Modifier, navController: NavHostController){
+fun OwnerPageContent(navController: NavHostController){
 
     val viewModel: OwnerPageViewModel = viewModel()
     Box(
