@@ -5,4 +5,21 @@
     <string name="play_pause">Play/Pause</string>
     <string name="forward30">Go forward 30 seconds</string>
     <string name="back">Back</string>
+    <string name="error_fetching_msg">Error Fetching data</string>
+    <string name="Password_not_good">Please make sure your password is:\n- At least 8 characters long\n- Has at least one capital letter\n- Has at least one number</string>
+    <string name="permission_1_explination">Can post podcasts</string>
+    <string name="permission_2_explination">Can edit podcasts</string>
+    <string name="permission_3_explination">Can review comments</string>
+    <string name="expand_comments">Expand comments</string>
+    <string name="placeholder_comments">Placeholder image for comments</string>
+    <string name="leave_a_reply">Leave a reply</string>
+    <string name="add_comment">Add comment</string>
+    <string name="cancel">Cancel</string>
+    <string name="write_here">Write here ..</string>
+    <string name="your_comment_was_added">Your comment was added.</string>
+    <string name="username">Username</string>
+    <string name="comments">Comments</string>
+    <string name="error_has_occurred">Apologies. An error has occurred!</string>
+    <string name="comments_screening_text">* Thank you for being respectful. Comments will be screened for disrespectful content or bad language, before they are visible!</string>
+>>>>>>> a502f1beaa103b954e729d57f023ee01670184bb
 </resources>

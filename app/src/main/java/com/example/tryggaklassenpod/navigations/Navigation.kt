@@ -21,6 +21,7 @@ import com.example.tryggaklassenpod.screens.PodcastsList
 import com.example.tryggaklassenpod.screens.PlayerScreen
 import com.example.tryggaklassenpod.screens.OwnerPageContent
 import com.example.tryggaklassenpod.screens.PodcastViewModel
+import com.example.tryggaklassenpod.screens.OwnerPageContent
 
 
 
@@ -31,8 +32,12 @@ fun Navigation() {
 
     val podcastViewModel: PodcastViewModel = viewModel()
 
+<<<<<<< HEAD
     NavHost(navController = navController, startDestination = Screen.LoginScreen.route){
 
+=======
+    NavHost(navController = navController, startDestination = Screen.HomeScreen.route){
+>>>>>>> 6461627e6261f9432d6ce5dc7aac06d2247eb389
         composable(route = Screen.HomeScreen.route){
             HomeScreen(podcastUiState = podcastViewModel.podcastUiState, navController = navController)
         }
@@ -105,6 +110,10 @@ fun Navigation() {
                     navController.popBackStack()
                 }
             )
+        }
+
+        composable(route = Screen.OwnerPage.route){
+            OwnerPageContent(navController = navController)
         }
     }
 }

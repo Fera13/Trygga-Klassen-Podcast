@@ -121,11 +121,6 @@ fun UploadPodcast(navController: NavController) {
 
             Log.d("Image Url", "imageUrl: $imageUrl")
 
-//            val email = "anam@example.com"
-//            val password = "password"
-
-//            val imageUploader = ImageUploader(storageReference, Authentication())
-//            imageUploader.uploadImage(podcastName, email, password, imageUri) { newDownloadUrl ->
 
             val imageUploader = ImageUploader(storageReference)
             // Call the uploadAudio function with the selected audioUri
@@ -198,27 +193,22 @@ fun UploadPodcast(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Add the length of the podcast in seconds",
+            text = "Upload the audio file for the podcast",
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(16.dp)
         )
-        OutlinedTextField(
-            value = duration,
-            onValueChange = { newValue ->
-                duration = newValue
-            },
-            label = { Text("Length(seconds)") },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (selectedFileName != null) {
+        if (selectedFileName == null) {
+            OutlinedTextField(
+                value = "Audio",
+                onValueChange = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+        } else {
             OutlinedTextField(
                 value = selectedFileName!!,
-                onValueChange = { /* No-op, as this is read-only */ },
+                onValueChange = { },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -231,14 +221,23 @@ fun UploadPodcast(navController: NavController) {
         ) {
             Text(text = "Upload podcast")
         }
-        // Display the selected image file name (if it's not null) in an OutlinedTextField
-        if (selectedImageFileName != null) {
+        Text(
+            text = "Upload the image file for the podcast",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(16.dp)
+        )
+        if (selectedImageFileName == null) {
+            OutlinedTextField(
+                value = "Image",
+                onValueChange = { },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+            )
+        } else {
             OutlinedTextField(
                 value = selectedImageFileName!!,
-                onValueChange = {
-                    // No-op, read-only
-                },
-                label = { Text("Selected Image File") },
+                onValueChange = { }, // read only
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -252,9 +251,10 @@ fun UploadPodcast(navController: NavController) {
         ) {
             Text(text = "Select Image File")
         }
+        Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.Center
         ) {
             Button(
                 onClick = {
@@ -270,7 +270,6 @@ fun UploadPodcast(navController: NavController) {
                             val episodeData = Episode(
                                 id = newId,
                                 episodeUrl = audioLatestUrl,
-                                duration = durationInt,
                                 imageUrl = imageLatestUrl,
                                 title = podcastName,
                                 description = podcastDescription,
@@ -279,7 +278,6 @@ fun UploadPodcast(navController: NavController) {
                             newEpisodeReference.setValue(episodeData).addOnSuccessListener {
                                 podcastName = ""
                                 podcastDescription = ""
-                                duration = ""
                                 selectedFileName = null
                                 selectedImageFileName = null
                                 Toast.makeText(context, "Upload successful", Toast.LENGTH_SHORT).show()
@@ -298,4 +296,3 @@ fun UploadPodcast(navController: NavController) {
         }
                 }
             }
-

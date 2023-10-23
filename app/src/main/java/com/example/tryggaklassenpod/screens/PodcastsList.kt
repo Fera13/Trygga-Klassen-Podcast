@@ -80,6 +80,9 @@ fun PodcastsList(navController: NavController) {
                     onClick = {
                         val podcastId = episode.id.toString()
                         deletePodcast(podcastId, context)
+                        episodeFetcher.fetchEpisodes { fetchedEpisodes ->
+                            episodes = fetchedEpisodes as List<Episode>
+                            }
                        },
                     modifier = Modifier.fillMaxWidth()
                 ) {

@@ -19,6 +19,7 @@ fun deletePodcast(podcastId: String, context: Context) {
     podcastReference.removeValue()
         .addOnSuccessListener {
             Toast.makeText(context, "deleted successfully", Toast.LENGTH_LONG).show()
+
         }
         .addOnFailureListener { exception ->
             Log.e("Error", "Error deleting the podcast")

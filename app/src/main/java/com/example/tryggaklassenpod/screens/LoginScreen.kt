@@ -219,7 +219,7 @@ private fun authenticateUser(username: String, password: String,navController: N
                         when (role) {
                             "superuser" -> {
                                 // Route to the OwnerScreen for superuser
-                                navController.navigate("OwnerScreen")
+                                navController.navigate("OwnerPage")
                             }
                         }
                         onAuthenticationResult(true, "superuser")

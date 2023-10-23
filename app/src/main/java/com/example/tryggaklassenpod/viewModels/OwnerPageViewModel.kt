@@ -9,6 +9,7 @@ import com.example.tryggaklassenpod.sealed.DeleteAdminState
 import com.example.tryggaklassenpod.sealed.InsertAdminDataState
 import com.example.tryggaklassenpod.sealed.FetchingAdminDataState
 import com.example.tryggaklassenpod.sealed.FetchingAdminIDsState
+import com.example.tryggaklassenpod.sealed.UpdateAdminState
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
@@ -21,6 +22,12 @@ class OwnerPageViewModel : ViewModel() {
 
     private val _message2 = mutableStateOf<DeleteAdminState?>(null)
     val deleteMessage: State<DeleteAdminState?> = _message2
+
+    private val _message3 = mutableStateOf<UpdateAdminState?>(null)
+    val updateMessage: State<UpdateAdminState?> = _message3
+
+    //private val _message4 = mutableStateOf(mutableListOf<AdminDataClass>())
+    //val adminList: State<mutableListOf<String>()> = _message4
 
     val fetchAdminresponse: MutableState<FetchingAdminDataState> = mutableStateOf(FetchingAdminDataState.Empty)
     val fetchIDresponse: MutableState<FetchingAdminIDsState> = mutableStateOf(FetchingAdminIDsState.Empty)
@@ -64,6 +71,7 @@ class OwnerPageViewModel : ViewModel() {
                         if (adminID != null)
                             tempList.add(adminID)
                     }
+                    //adminList = tempList
                     fetchIDresponse.value = FetchingAdminIDsState.Success(tempList)
                 }
 
@@ -75,8 +83,8 @@ class OwnerPageViewModel : ViewModel() {
     }
 
 
-    fun addNewAdmin(username:String, school:String, password:String, permissions: Map<String, Boolean>) {
-        if(username != "" && school != "" && password != "" ){
+    fun addNewAdmin(username:String, school:String, password:Map<String, String>, permissions: Map<String, Boolean>) {
+        if(username != "" && school != "" && password.isNotEmpty()){
             try {
                 // Your data to be inserted
                 val admin = AdminDataClass(
@@ -110,8 +118,6 @@ class OwnerPageViewModel : ViewModel() {
             _message.value = InsertAdminDataState.Failure("Fill all the fields please")
         }
 
-
-
     }
 
     fun deleteAdminById(id:String){
@@ -127,6 +133,31 @@ class OwnerPageViewModel : ViewModel() {
             }
         } catch (e: Exception) {
             _message2.value = DeleteAdminState.Failure("An error occurred.")
+        }
+    }
+
+    fun editAdminInfo(adminID:String, username: String, password: Map<String, String>, school: String, permissions: Map<String, Boolean>) {
+        try {
+            // Your data to be inserted
+            val updatedAdmin = mapOf<String, Any>(
+                "username" to username,
+                "password" to password,
+                "school" to school,
+                "role" to "admin", // Automatically set the role as "admin"
+                "permissions" to permissions
+            )
+
+            val myRef = FirebaseDatabase.getInstance().getReference("admins")
+            myRef.child(adminID).updateChildren(updatedAdmin).addOnSuccessListener {
+                println("Data has been updated for admin with ID: $adminID")
+                _message3.value = UpdateAdminState.Success("Admin updated successfully")
+            }.addOnFailureListener { error ->
+                // Handle the error if the data update fails
+                println("Error inserting data: $error")
+                _message3.value = UpdateAdminState.Failure("Admin couldn't be updated")
+            }
+        } catch (e: Exception) {
+            _message3.value = UpdateAdminState.Failure("An error occurred.")
         }
     }
 }

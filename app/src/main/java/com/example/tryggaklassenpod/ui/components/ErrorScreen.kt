@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 fun ErrorScreen(
     errorMessage: String,
     onRetry: () -> Unit,
+    buttonIncluded: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -34,15 +35,16 @@ fun ErrorScreen(
             Text(text = errorMessage, color = MaterialTheme.colorScheme.primary)
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = onRetry,
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Text(
-                    text = "Try Again",
-                    color = MaterialTheme.colorScheme.primary
-                )
+            if (buttonIncluded) {
+                Button(
+                    onClick = onRetry,
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
+                ) {
+                    Text(
+                        text = "Try Again",
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
     }

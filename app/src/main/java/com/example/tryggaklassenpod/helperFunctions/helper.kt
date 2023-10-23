@@ -1,6 +1,8 @@
 package com.example.tryggaklassenpod.helperFunctions
 
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 fun Int.toHoursMinuteSeconds(): String {
     val hours = this / 3600
@@ -12,4 +14,10 @@ fun Int.toHoursMinuteSeconds(): String {
 
 fun Long.getCreatedAtAsDate(): Date {
     return Date(this)
+}
+
+fun Long.getCreatedAtFormatted(): String {
+    val dateFormat = SimpleDateFormat("EEE, dd MMM yyyy, HH:mm", Locale.getDefault())
+    val date = Date(this)
+    return dateFormat.format(date)
 }
