@@ -80,12 +80,16 @@ fun Navigation() {
                 navArgument("episodeId") { type = NavType.IntType }
             )
         ) { backStackEntry ->
+
             val episodeId = backStackEntry.arguments?.getInt("episodeId")
             if (episodeId != null) {
                 viewComments(episodeId)
             }
         }
 
+//            val episodeId = backStackEntry.arguments?.getString("episodeId")?.toIntOrNull() ?: 0
+//            CommentReviewScreen(episodeId = episodeId)
+//        }
 
         composable(route = Screen.LoginScreen.route) {
             LoginScreen(navController = navController)
