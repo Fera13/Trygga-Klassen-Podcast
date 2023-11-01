@@ -131,7 +131,7 @@ class OwnerAddingAdmin {
                     text = stringResource(R.string.Password_not_good),
                     color = Color.Red)
             }
-            if(insertionStatusMessage) {
+            /*if(insertionStatusMessage) {
                 // Display the toast with a message
                 val message = viewModel.message.value
                 if (message is InsertAdminDataState.Success) {
@@ -141,8 +141,8 @@ class OwnerAddingAdmin {
                     val toast = callToast(sentence = (message).error)
                     toast.show()
                 }
-            }
-            /*if(insertionStatusMessage) {
+            }*/
+            if(insertionStatusMessage) {
                 // Display the message under the button
                 val message = viewModel.message.value
                 if (message is InsertAdminDataState.Success) {
@@ -156,7 +156,7 @@ class OwnerAddingAdmin {
                         color = Color.Red // Color for error message
                     )
                 }
-            }*/
+            }
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
@@ -220,7 +220,7 @@ class OwnerAddingAdmin {
         }
         return checked
     }
-    @SuppressLint("ShowToast")
+    /*@SuppressLint("ShowToast")
     @Composable
     fun callToast(sentence:String): Toast {
         val context = LocalContext.current
@@ -228,5 +228,5 @@ class OwnerAddingAdmin {
             context, sentence,
             Toast.LENGTH_LONG)
         return toast
-    }
+    }*/
 }
