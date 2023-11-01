@@ -29,7 +29,7 @@ class PasswordHashTest {
     @RequiresApi(Build.VERSION_CODES.O)
     fun testHashPassword() {
         val password = "myPassword"
-        val (hashedPassword, salt) = PasswordHash.hashPassword(password)
+        val (hashedPassword, salt) = PasswordHash.hashPassword(password, storedSalt)
 
         assertNotEquals(password, hashedPassword)
 

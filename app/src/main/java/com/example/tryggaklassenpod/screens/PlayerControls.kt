@@ -21,23 +21,33 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.helperFunctions.toHoursMinuteSeconds
+import com.example.tryggaklassenpod.ui.components.LoadingScreen
 import kotlinx.coroutines.delay
 
 
 @Composable
 fun PlayerControllerArea(
     episodeUrl: String,
-    episodeDuration: Int,
     viewModel: PodcastViewModel
 ) {
-    if (viewModel.newPosition >= episodeDuration) {
+    if (viewModel.sliderPosition >= 0.992f) {
         viewModel.isPlaying = false
+        viewModel.newPosition = 0
+        viewModel.sliderPosition = 0.0f
+        viewModel.player.playAgain()
+    }
+
+    LaunchedEffect(viewModel.episodeFullDuration) {
+        while (viewModel.episodeFullDuration == 0) {
+            viewModel.episodeFullDuration = viewModel.player.getFullDuration()
+            delay(500)
+        }
     }
 
     LaunchedEffect(viewModel.isPlaying) {
         while (viewModel.isPlaying) {
             viewModel.newPosition = viewModel.player.getCurrentInSeconds()
-            viewModel.sliderPosition = viewModel.newPosition.toFloat() / episodeDuration.toFloat()
+            viewModel.sliderPosition = viewModel.newPosition.toFloat() / viewModel.episodeFullDuration.toFloat()
             delay(500)
         }
     }
@@ -48,13 +58,14 @@ fun PlayerControllerArea(
             .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         Slider(
             value = viewModel.sliderPosition,
             enabled = false,
             onValueChange = {
                 if (viewModel.player.canPlayerStart()){
                     viewModel.sliderPosition = it
-                    viewModel.player.seekTo((it * episodeDuration).toInt())
+                    viewModel.player.seekTo((it * viewModel.episodeFullDuration).toInt())
                 }
             },
             colors = SliderDefaults.colors(
@@ -69,7 +80,7 @@ fun PlayerControllerArea(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(text = viewModel.newPosition.toHoursMinuteSeconds())
-            Text(text = episodeDuration.toHoursMinuteSeconds())
+            Text(text = viewModel.episodeFullDuration.toHoursMinuteSeconds())
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -77,7 +88,11 @@ fun PlayerControllerArea(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
-                onClick = { viewModel.player.replay10Seconds() },
+                onClick = {
+                    if ( viewModel.episodeFullDuration != 0) {
+                        viewModel.player.replay10Seconds()
+                    }
+                },
                 modifier = Modifier.size(45.dp)
             ) {
                 Icon(
@@ -87,17 +102,24 @@ fun PlayerControllerArea(
                     tint = MaterialTheme.colorScheme.secondary
                 )
             }
+
             IconButton(
                 onClick = {
-                    if (viewModel.isPlaying) {
-                        viewModel.player.pauseEpisode()
-                    } else {
-                        viewModel.player.playEpisode(episodeUrl)
+                    if (viewModel.episodeFullDuration != 0) {
+                        if (viewModel.isPlaying) {
+                            viewModel.player.pauseEpisode()
+                        } else {
+                            viewModel.player.playEpisode(episodeUrl)
+                        }
+                        viewModel.isPlaying = !viewModel.isPlaying
                     }
-                    viewModel.isPlaying = !viewModel.isPlaying
                 },
                 modifier = Modifier.size(70.dp)
             ) {
+                if (viewModel.episodeFullDuration == 0) {
+                    LoadingScreen()
+                }
+
                 Icon(
                     painter = if (viewModel.isPlaying) {
                         painterResource(R.drawable.pause)
@@ -110,7 +132,11 @@ fun PlayerControllerArea(
                 )
             }
             IconButton(
-                onClick = { viewModel.player.forward30Seconds() },
+                onClick = {
+                    if ( viewModel.episodeFullDuration != 0) {
+                        viewModel.player.forward30Seconds()
+                    }
+                  },
                 modifier = Modifier.size(45.dp)
             ) {
                 Icon(

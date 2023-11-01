@@ -1,5 +1,9 @@
 package com.example.tryggaklassenpod.screens
 
+import android.content.ContentValues.TAG
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,16 +33,22 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tryggaklassenpod.R
+import com.example.tryggaklassenpod.dataClasses.LoginDataClass
+import com.example.tryggaklassenpod.helperFunctions.PasswordHash
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.example.tryggaklassenpod.helperFunctions.generateSuperuserPassword
 
-
-
-private val database: DatabaseReference = Firebase.database.reference.child("admins")
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -45,6 +57,10 @@ fun LoginScreen(navController: NavController) {
     var showError by remember { mutableStateOf(false) }
     var userRole by remember { mutableStateOf<String?>(null) }
     var loggedIn by remember { mutableStateOf(false) }
+    var passwordVisibility by remember { mutableStateOf(false) }
+    //generateSuperuserPassword()
+
+
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -72,6 +88,7 @@ fun LoginScreen(navController: NavController) {
                     username = newUsername
                     userRole = null
                     loggedIn = false
+                    showError = false
                 },
                 label = { Text(text = "Username") },
                 textStyle = TextStyle(color = Color.Black),
@@ -86,18 +103,38 @@ fun LoginScreen(navController: NavController) {
 
             OutlinedTextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    showError = false
+                },
                 label = { Text(text = "Password") },
                 textStyle = TextStyle(color = Color.Black),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Done
                 ),
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    val image = if (passwordVisibility) {
+                        painterResource(id = R.drawable.eye_open)
+                    } else {
+                        painterResource(id = R.drawable.eye_closed)
+                    }
+
+                    IconButton(
+                        onClick = { passwordVisibility = !passwordVisibility }
+                    ) {
+                        Icon(
+                            painter = image,
+                            contentDescription = if (passwordVisibility) "Hide password" else "Show password",
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
             )
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -111,48 +148,129 @@ fun LoginScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    authenticateUser(username, password) { isAuthenticated, role ->
+                    authenticateUser(username, password, navController) { isAuthenticated, role ->
                         if (isAuthenticated) {
-                            userRole = role
-                            loggedIn = true
-
-                            if (role == "admin") {
-                                // Navigate to the admin screen
-                                navController.navigate(Screen.AdminScreen.route)
+                            when (role) {
+                                "admin" -> {
+                                    // Route to the AdminScreen for admin
+                                    navController.navigate("AdminScreen")
+                                }
                             }
-
                         } else {
                             showError = true
                         }
                     }
                 },
-                modifier = Modifier
-                    .padding(8.dp),
+                modifier = Modifier.padding(8.dp),
             ) {
                 Text(text = "Login")
             }
+        }
 
-            if (loggedIn) {
-                Text(
-                    text = "Logged in as: $username\nRole: $userRole",
-                    modifier = Modifier.padding(8.dp)
-                )
+    }
+}
+
+
+private fun authenticateUser(username: String, password: String,navController: NavController, onAuthenticationResult: (Boolean, String?) -> Unit) {
+    val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("admins")
+
+    Log.d(TAG, "Before database query")
+    database.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            Log.d(TAG, "Query successful")
+            if (snapshot.exists()) {
+                Log.d(TAG, "Snapshot exist")
+                var isAuthenticated = false
+                var userRole: String? = null
+
+                for (childSnapshot in snapshot.children) {
+                    val adminData = childSnapshot.getValue(LoginDataClass::class.java)
+                    Log.d(TAG, "Fetched adminData: $adminData")
+                    if (adminData != null) {
+                        val passwordMap = adminData.password
+                        val hashedPassword = passwordMap?.get("hashedPass")
+                        val salt = passwordMap?.get("salt")
+                        if (hashedPassword != null && salt != null) {
+                            if (PasswordHash.hashAndComparePassword(password, salt, hashedPassword)) {
+                                Log.d(TAG, "Password is correct")
+                                isAuthenticated = true
+                                userRole = adminData.role
+                                break // Exit the loop once a valid user is found
+                            } else {
+                                Log.e(TAG, "Password is Incorrect")
+                            }
+                        } else {
+                            Log.e(TAG, "Password or salt is not found")
+                        }
+                    } else {
+                        Log.e(TAG, "adminData is null")
+                    }
+                }
+
+                if (isAuthenticated) {
+                    onAuthenticationResult(true, userRole)
+                } else {
+                    onAuthenticationResult(false, null)
+                }
+
+            } else if (!snapshot.exists()) {
+                // Check if the user is the "superuser"
+                Log.d(TAG, "Checking for superuser")
+                checkForSuperuser(username, password) { isSuperuser, role ->
+                    if (isSuperuser) {
+                        Log.d(TAG, "SuperUser found")
+                        when (role) {
+                            "superuser" -> {
+                                // Route to the OwnerScreen for superuser
+                                navController.navigate("OwnerPage")
+                            }
+                        }
+                        onAuthenticationResult(true, "superuser")
+                    } else {
+                        onAuthenticationResult(false, null)
+                    }
+                }
             }
         }
-    }
-}
 
-private fun authenticateUser(username: String, password: String, onAuthenticationResult: (Boolean, String?) -> Unit) {
-
-    database.child(username).get().addOnSuccessListener { dataSnapshot ->
-        val userData = dataSnapshot.value as? Map<String, Any>
-        if (userData != null && userData["password"] == password) {
-            val role = userData["role"] as? String
-            onAuthenticationResult(true, role)
-        } else {
+        override fun onCancelled(error: DatabaseError) {
+            Log.d(TAG, "Database query cancelled: ${error.message}")
             onAuthenticationResult(false, null)
         }
-    }.addOnFailureListener { exception ->
-        onAuthenticationResult(false, null)
-    }
+    })
 }
+
+private fun checkForSuperuser(username: String, password: String, onResult: (Boolean, String?) -> Unit) {
+    val superuserDatabase: DatabaseReference = Firebase.database.reference.child("superusers")
+    Log.d(TAG, "Checking superuser database for username: $username")
+    superuserDatabase.orderByChild("username").equalTo(username).addListenerForSingleValueEvent(object : ValueEventListener {
+        override fun onDataChange(snapshot: DataSnapshot) {
+            if (snapshot.exists()) {
+                for (childSnapshot in snapshot.children) {
+                    val superuserData = childSnapshot.getValue(LoginDataClass::class.java)
+                    if (superuserData != null) {
+                        val passwordMap = superuserData.password
+                        val hashedPassword = passwordMap?.get("hashedPass")
+                        val salt = passwordMap?.get("salt")
+                        if (hashedPassword != null && salt != null) {
+                            if (PasswordHash.hashAndComparePassword(password, salt, hashedPassword)) {
+                                val role = superuserData.role
+                                onResult(true, role)
+                                return
+                            }
+                        }
+                    }
+                }
+            }
+            Log.d(TAG, "The superuser is npt found or no math with password")
+            onResult(false, null)
+        }
+
+        override fun onCancelled(error: DatabaseError) {
+            Log.d(TAG, "Database query cancelled: ${error.message}")
+            onResult(false, null)
+        }
+    })
+}
+
+

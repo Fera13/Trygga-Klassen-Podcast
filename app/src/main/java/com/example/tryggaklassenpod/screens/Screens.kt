@@ -12,6 +12,8 @@ sealed class Screen(val route: String){
     object CommentReviewScreen: Screen("CommentReviewScreen")
     object PlayerScreen: Screen("playerScreen")
     object OwnerPage: Screen("OwnerPage")
+    object ViewComments: Screen("ViewComments")
+
 
 
 }

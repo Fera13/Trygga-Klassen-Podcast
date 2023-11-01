@@ -43,6 +43,7 @@ val showAdmins = OwnerPageShowEditAdmin()
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun OwnerPageContent(navController: NavHostController){
+
     val viewModel: OwnerPageViewModel = viewModel()
     Box(
         modifier = Modifier

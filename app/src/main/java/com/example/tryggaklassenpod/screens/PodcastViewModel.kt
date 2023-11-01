@@ -93,7 +93,7 @@ class PodcastViewModel: ViewModel() {
                             epCommId = 0
                         }
 
-                        var newComment = Comments(
+                        val newComment = Comments(
                             commentId = epCommId,
                             comment = comment,
                             author = author,
@@ -125,8 +125,11 @@ class PodcastViewModel: ViewModel() {
     }
 
     val player = PodcastPlayerManager()
+
     var episodeUrl:String by mutableStateOf("")
     var isPlaying: Boolean by mutableStateOf(false)
     var newPosition: Int by mutableIntStateOf(0)
     var sliderPosition: Float by mutableFloatStateOf(0F)
+
+    var episodeFullDuration by mutableIntStateOf(0)
 }
