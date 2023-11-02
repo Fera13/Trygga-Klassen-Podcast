@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
@@ -36,6 +37,9 @@ import com.example.tryggaklassenpod.partsOfScreens.addAdmin
 import com.example.tryggaklassenpod.sealed.FetchingAdminDataState
 import com.example.tryggaklassenpod.sealed.FetchingAdminIDsState
 import com.example.tryggaklassenpod.viewModels.OwnerPageViewModel
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.delay
 
 
 val showAdmins = OwnerPageShowEditAdmin()
@@ -51,6 +55,102 @@ fun OwnerPageContent(navController: NavHostController){
     ){
         TabbedPage(viewModel, navController)
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun SwipeRefreshCompose(viewModel: OwnerPageViewModel): Pair<MutableList<String>, MutableList<AdminDataClass>> {
+    var adminIds by remember { mutableStateOf(mutableListOf<String>()) }
+    var admins by remember { mutableStateOf(mutableListOf<AdminDataClass>()) }
+    var refreshing by remember { mutableStateOf(false) }
+    LaunchedEffect(refreshing) {
+        if (refreshing) {
+            delay(3000)
+            refreshing = false
+        }
+    }
+
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing = refreshing),
+        onRefresh = { refreshing = true },
+    ) {
+
+        when (val result2 = viewModel.fetchIDresponse.value) {
+            is FetchingAdminIDsState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            is FetchingAdminIDsState.Success -> {
+                adminIds = result2.data
+            }
+            is FetchingAdminIDsState.Failure -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = result2.message,
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+            else -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.error_fetching_msg),
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+        }
+        when (val result = viewModel.fetchAdminresponse.value) {
+            is FetchingAdminDataState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+            is FetchingAdminDataState.Success -> {
+                admins = result.data
+                showAdmins.ShowLazyList(viewModel, admins, adminIds)
+            }
+            is FetchingAdminDataState.Failure -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = result.message,
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+            else -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.error_fetching_msg),
+                        fontSize = 16.sp,
+                    )
+                }
+            }
+        }
+
+    }
+
+    return Pair(adminIds, admins)
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -131,77 +231,9 @@ fun TabContent1(viewModel: OwnerPageViewModel) {
                     shape = RoundedCornerShape(15.dp)
                 )
         ){
-            when (val result2 = viewModel.fetchIDresponse.value) {
-                is FetchingAdminIDsState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is FetchingAdminIDsState.Success -> {
-                    adminIds = result2.data
-                }
-                is FetchingAdminIDsState.Failure -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = result2.message,
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-                else -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.error_fetching_msg),
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-            }
-            when (val result = viewModel.fetchAdminresponse.value) {
-                is FetchingAdminDataState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is FetchingAdminDataState.Success -> {
-                    admins = result.data
-                    showAdmins.ShowLazyList(viewModel, admins, adminIds)
-                }
-                is FetchingAdminDataState.Failure -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = result.message,
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-                else -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.error_fetching_msg),
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-            }
+            var pairReturned = SwipeRefreshCompose(viewModel)
+            adminIds = pairReturned.first
+            admins = pairReturned.second
         }
         Text(
             text = "Add a new admin",

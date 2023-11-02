@@ -82,6 +82,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
 
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.24.13-rc")
+
     // COIL dependency for images!
     implementation("io.coil-kt:coil-compose:2.4.0")
     implementation("com.github.javafaker:javafaker:1.0.2")
