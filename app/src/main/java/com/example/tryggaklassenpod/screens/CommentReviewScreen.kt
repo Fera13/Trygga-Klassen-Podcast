@@ -49,7 +49,6 @@ fun CommentReviewScreen(navController: NavController) {
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-//                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
 
                 ) {
@@ -80,10 +79,7 @@ fun CommentReviewScreen(navController: NavController) {
                             text = "View Comment",
                             style = MaterialTheme.typography.bodySmall
                         )
-
-
                     }
-
                 }
             }
         }

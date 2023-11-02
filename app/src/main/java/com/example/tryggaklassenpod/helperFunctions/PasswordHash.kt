@@ -49,3 +49,4 @@ object PasswordHash {
         return hashedPassword.toString() == storedHashedPassword
     }
 }
+

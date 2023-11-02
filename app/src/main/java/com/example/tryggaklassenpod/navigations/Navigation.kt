@@ -1,12 +1,10 @@
 package com.example.tryggaklassenpod.navigations
 
-import com.example.tryggaklassenpod.screens.PlayerScreen
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
-import com.example.tryggaklassenpod.screens.Screen
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -25,32 +23,31 @@ import com.example.tryggaklassenpod.languages.contactus.ContactSp
 import com.example.tryggaklassenpod.languages.contactus.ContactSwe
 import com.example.tryggaklassenpod.languages.partnersponser.PartnerSponser
 import com.example.tryggaklassenpod.screens.AdminScreen
+import com.example.tryggaklassenpod.screens.CommentReviewScreen
+import com.example.tryggaklassenpod.screens.EditPodcasts
 import com.example.tryggaklassenpod.screens.HomeScreen
 import com.example.tryggaklassenpod.screens.LoginScreen
-import com.example.tryggaklassenpod.screens.CommentReviewScreen
-import com.example.tryggaklassenpod.screens.UploadPodcast
-import com.example.tryggaklassenpod.screens.EditPodcasts
-import com.example.tryggaklassenpod.screens.PodcastsList
-import com.example.tryggaklassenpod.veiwModel.HomeViewModel
 import com.example.tryggaklassenpod.screens.OwnerPageContent
+import com.example.tryggaklassenpod.screens.PlayerScreen
 import com.example.tryggaklassenpod.screens.PodcastViewModel
+import com.example.tryggaklassenpod.screens.PodcastsList
+import com.example.tryggaklassenpod.screens.Screen
+import com.example.tryggaklassenpod.screens.UploadPodcast
 import com.example.tryggaklassenpod.screens.viewComments
+import com.example.tryggaklassenpod.veiwModel.HomeViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation(homeViewModel: HomeViewModel = viewModel()) {
     val navController = rememberNavController()
-
     val podcastViewModel: PodcastViewModel = viewModel()
-
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route){
 
         composable(route = Screen.HomeScreen.route){
             HomeScreen(navController = navController, homeViewModel)
         }
-
 
         composable(route = Screen.AboutEng.route){
             AboutEng(navController = navController)
@@ -92,9 +89,6 @@ fun Navigation(homeViewModel: HomeViewModel = viewModel()) {
             PartnerSponser(navController = navController)
         }
 
-        composable(route = Screen.LoginScreen.route) {
-            LoginScreen(navController = navController)
-        }
 
         composable(route = Screen.AdminScreen.route){
             AdminScreen(navController = navController)
@@ -108,11 +102,16 @@ fun Navigation(homeViewModel: HomeViewModel = viewModel()) {
             PodcastsList(navController = navController)
         }
 
+        composable(route = Screen.CommentReviewScreen.route){
+            CommentReviewScreen(navController = navController)
+        }
+
         composable(route = Screen.EditPodcasts.route){
                 backStackEntry ->
             val podcastId = backStackEntry.arguments?.getString("podcastId") ?: ""
             EditPodcasts(navController = navController, podcastId = podcastId)
         }
+
         composable(
             route = "${Screen.EditPodcasts.route}/{podcastId}",
             arguments = listOf(
@@ -127,16 +126,25 @@ fun Navigation(homeViewModel: HomeViewModel = viewModel()) {
                 podcastId = podcastId ?: ""
             )
         }
+
         composable(
-            route = Screen.CommentReviewScreen.route
+            route = "${Screen.ViewComments.route}/{episodeId}",
+            arguments = listOf(
+                navArgument("episodeId") { type = NavType.IntType }
+            )
         ) { backStackEntry ->
-            val episodeId = backStackEntry.arguments?.getString("episodeId")?.toIntOrNull() ?: 0
-            CommentReviewScreen(navController = navController)
+            val episodeId = backStackEntry.arguments?.getInt("episodeId")
+            if (episodeId != null) {
+                viewComments(episodeId)
             }
+        }
+//            val episodeId = backStackEntry.arguments?.getString("episodeId")?.toIntOrNull() ?: 0
+//            CommentReviewScreen(episodeId = episodeId)
+//        }
+
 
         composable(route = Screen.LoginScreen.route) {
             LoginScreen(navController = navController)
-
         }
 
         composable(
@@ -157,31 +165,8 @@ fun Navigation(homeViewModel: HomeViewModel = viewModel()) {
             )
         }
 
-
-        composable(route = Screen.AdminScreen.route){
-            AdminScreen(navController = navController)
-        }
-
-        composable(route = Screen.UploadPodcast.route){
-            UploadPodcast(navController = navController)
-        }
-
-
         composable(route = Screen.OwnerPage.route){
             OwnerPageContent(navController = navController)
-        }
-
-        composable(
-            route = "${Screen.ViewComments.route}/{episodeId}",
-            arguments = listOf(
-                navArgument("episodeId") { type = NavType.IntType }
-            )
-        ) { backStackEntry ->
-
-            val episodeId = backStackEntry.arguments?.getInt("episodeId")
-            if (episodeId != null) {
-                viewComments(episodeId)
-            }
         }
     }
 }

@@ -277,3 +277,4 @@ private fun checkForSuperuser(username: String, password: String, onResult: (Boo
         }
     })
 }
+
