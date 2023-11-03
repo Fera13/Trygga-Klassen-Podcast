@@ -8,7 +8,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,7 +22,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,26 +41,51 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.dataClasses.AdminDataClass
 import com.example.tryggaklassenpod.helperFunctions.PasswordHash
 import com.example.tryggaklassenpod.helperFunctions.ValidatePassword
-import com.example.tryggaklassenpod.screens.showAdmins
 import com.example.tryggaklassenpod.sealed.DeleteAdminState
-import com.example.tryggaklassenpod.sealed.FetchingAdminDataState
 import com.example.tryggaklassenpod.sealed.UpdateAdminState
 import com.example.tryggaklassenpod.viewModels.OwnerPageViewModel
+import kotlinx.coroutines.delay
 
 val addAdmin = OwnerAddingAdmin()
 
 class OwnerPageShowEditAdmin {
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
-    fun ShowLazyList(viewModel: OwnerPageViewModel, admins: MutableList<AdminDataClass>, adminIds: MutableList<String>) {
+    fun ShowLazyList() {
+        val viewModel: OwnerPageViewModel = viewModel()
+        var admins by remember { mutableStateOf(emptyList<AdminDataClass>()) }
+        var adminIDs by remember { mutableStateOf(emptyList<String>()) }
+
+
+        LaunchedEffect(Unit, viewModel.refresh) {
+            viewModel.fetchAdmins{ fetchedAdmins ->
+                admins = fetchedAdmins as List<AdminDataClass>
+            }
+            viewModel.fetchAdminsIDs { fetchedIDs ->
+                adminIDs = fetchedIDs as List<String>
+            }
+            /*if(viewModel.refresh){
+                delay(10000)
+                viewModel.fetchAdmins{ fetchedAdmins ->
+                    admins = fetchedAdmins as List<AdminDataClass>
+                }
+                viewModel.fetchAdminsIDs { fetchedIDs ->
+                    adminIDs = fetchedIDs as List<String>
+                }
+                viewModel.refresh = false
+            }*/
+
+
+        }
+
         LazyColumn {
             itemsIndexed(admins) { index, admin ->
-                val adminId = adminIds.getOrNull(index) // Get the corresponding admin ID
+                val adminId = adminIDs.getOrNull(index) // Get the corresponding admin ID
                 AdminItem(viewModel, admin, adminId, // Pass both admin and adminId to your AdminItem composable
                     modifier = Modifier
                         .padding(
