@@ -39,19 +39,20 @@ val showAdmins = OwnerPageShowEditAdmin()
 @Composable
 fun OwnerPageContent(navController: NavHostController){
 
-    val viewModel: OwnerPageViewModel = viewModel()
     Box(
         modifier = Modifier
             .fillMaxSize(),
     ){
-        TabbedPage(viewModel, navController)
+        TabbedPage(navController)
     }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TabbedPage(viewModel: OwnerPageViewModel, navController: NavHostController) {
+fun TabbedPage(
+    navController: NavHostController,
+) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     // Labels for the tabs
     val tabLabels = listOf("Owner", "Admin")
@@ -84,7 +85,7 @@ fun TabbedPage(viewModel: OwnerPageViewModel, navController: NavHostController) 
                 }
                 // Display the content based on the selected tab
                 when (selectedTabIndex) {
-                    0 -> TabContent1(viewModel)
+                    0 -> TabContent1()
                     1 -> TabContent2(navController)
                 }
             }
@@ -94,10 +95,8 @@ fun TabbedPage(viewModel: OwnerPageViewModel, navController: NavHostController) 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TabContent1(viewModel: OwnerPageViewModel) {
-    var adminIds by remember { mutableStateOf(mutableListOf<String>()) }
+fun TabContent1() {
     val isDarkTheme = isSystemInDarkTheme()
-    var admins by remember { mutableStateOf(mutableListOf<AdminDataClass>()) }
 
     val backgroundColor = if (isDarkTheme) {
         Color(0xFF4DD8E5) // Dark theme background color
@@ -126,77 +125,7 @@ fun TabContent1(viewModel: OwnerPageViewModel) {
                     shape = RoundedCornerShape(15.dp)
                 )
         ){
-            when (val result2 = viewModel.fetchIDresponse.value) {
-                is FetchingAdminIDsState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is FetchingAdminIDsState.Success -> {
-                    adminIds = result2.data
-                }
-                is FetchingAdminIDsState.Failure -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = result2.message,
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-                else -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.error_fetching_msg),
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-            }
-            when (val result = viewModel.fetchAdminresponse.value) {
-                is FetchingAdminDataState.Loading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-                is FetchingAdminDataState.Success -> {
-                    admins = result.data
-                    showAdmins.ShowLazyList(viewModel, admins, adminIds)
-                }
-                is FetchingAdminDataState.Failure -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = result.message,
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-                else -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(R.string.error_fetching_msg),
-                            fontSize = 16.sp,
-                        )
-                    }
-                }
-            }
+            showAdmins.ShowLazyList()
         }
         Text(
             text = "Add a new admin",
@@ -217,7 +146,7 @@ fun TabContent1(viewModel: OwnerPageViewModel) {
                     shape = RoundedCornerShape(15.dp)
                 )
         ){
-            addAdmin.AddAnAdminSection(viewModel)
+            addAdmin.AddAnAdminSection()
         }
     }
 }

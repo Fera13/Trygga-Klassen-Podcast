@@ -1,10 +1,15 @@
 package com.example.tryggaklassenpod.viewModels
 
+import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.tryggaklassenpod.dataClasses.AdminDataClass
+import com.example.tryggaklassenpod.dataClasses.Episode
 import com.example.tryggaklassenpod.sealed.DeleteAdminState
 import com.example.tryggaklassenpod.sealed.InsertAdminDataState
 import com.example.tryggaklassenpod.sealed.FetchingAdminDataState
@@ -31,55 +36,46 @@ class OwnerPageViewModel : ViewModel() {
 
     val fetchAdminresponse: MutableState<FetchingAdminDataState> = mutableStateOf(FetchingAdminDataState.Empty)
     val fetchIDresponse: MutableState<FetchingAdminIDsState> = mutableStateOf(FetchingAdminIDsState.Empty)
-
+    var refresh by mutableStateOf(false)
     init{
-        fetchAdmins()
-        fetchAdminsIDs()
     }
 
-    private fun fetchAdmins() {
+    fun fetchAdmins(callback: (List<AdminDataClass>) -> Unit) {
         val tempList = mutableListOf<AdminDataClass>()
-        fetchAdminresponse.value = FetchingAdminDataState.Loading
+        val tempIDList = mutableListOf<String>()
+
         FirebaseDatabase.getInstance().getReference("admins")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (dataSnap in snapshot.children) {
-
-                        val adminItem = dataSnap.getValue(AdminDataClass::class.java)
-                        if (adminItem != null)
-
-                            tempList.add(adminItem)
+            .get().addOnSuccessListener { snapshot ->
+                snapshot.children.mapNotNull {
+                    val admin = it.getValue(AdminDataClass::class.java)
+                    if (admin != null) {
+                        tempList.add(admin)
                     }
-                    fetchAdminresponse.value = FetchingAdminDataState.Success(tempList)
+                    val adminID = snapshot.key
+                    if (adminID != null)
+                        tempIDList.add(adminID)
+                    Log.d("admins", "admins $tempList")
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    fetchAdminresponse.value = FetchingAdminDataState.Failure(error.message)
-                }
-
-            })
+                callback(tempList)
+            }.addOnFailureListener { exception ->
+                Log.e("AdminFetcher", "Failed to fetch admins: ${exception.message}")
+            }
     }
 
-    private fun fetchAdminsIDs() {
-        val tempList = mutableListOf<String>()
-        fetchIDresponse.value = FetchingAdminIDsState.Loading
+    fun fetchAdminsIDs(callback: (List<String>) -> Unit) {
+        val tempIDList = mutableListOf<String>()
         FirebaseDatabase.getInstance().getReference("admins")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (dataSnap in snapshot.children) {
-                        val adminID = dataSnap.key
-                        if (adminID != null)
-                            tempList.add(adminID)
-                    }
-                    //adminList = tempList
-                    fetchIDresponse.value = FetchingAdminIDsState.Success(tempList)
+            .get().addOnSuccessListener { snapshot ->
+                snapshot.children.mapNotNull {
+                    val adminID = it.key
+                    if (adminID != null)
+                        tempIDList.add(adminID)
+                    Log.d("adminsId", "adminsIDs $tempIDList")
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    fetchIDresponse.value = FetchingAdminIDsState.Failure(error.message)
-                }
-
-            })
+                callback(tempIDList)
+            }.addOnFailureListener { exception ->
+                Log.e("AdminIDFetcher", "Failed to fetch admins IDs: ${exception.message}")
+            }
     }
 
 

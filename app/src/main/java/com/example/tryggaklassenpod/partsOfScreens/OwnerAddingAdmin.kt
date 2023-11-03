@@ -24,6 +24,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,18 +36,23 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tryggaklassenpod.R
+import com.example.tryggaklassenpod.dataClasses.AdminDataClass
 import com.example.tryggaklassenpod.helperFunctions.PasswordHash
 import com.example.tryggaklassenpod.helperFunctions.ValidatePassword
 import com.example.tryggaklassenpod.sealed.InsertAdminDataState
 import com.example.tryggaklassenpod.viewModels.OwnerPageViewModel
-
+val showAdmins = OwnerPageShowEditAdmin()
 class OwnerAddingAdmin {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun AddAnAdminSection(viewModel: OwnerPageViewModel) {
+    fun AddAnAdminSection() {
+
+        val viewModel: OwnerPageViewModel = viewModel()
+
         var name by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var school by remember { mutableStateOf("") }
@@ -61,6 +67,7 @@ class OwnerAddingAdmin {
         val passValid = ValidatePassword()
         var showBadPass by remember { mutableStateOf(false) }
         var insertionStatusMessage by remember { mutableStateOf(false) } // Track if the message is shown
+
 
         Column(
             modifier = Modifier
@@ -116,16 +123,19 @@ class OwnerAddingAdmin {
                         password = ""
                         school = ""
                         insertionStatusMessage = true
+                        viewModel.refresh = true
                     }
                     else{
                         showBadPass = true
                         insertionStatusMessage = false
+                        viewModel.refresh = false
                     }
                 }
             ) {
                 Text("Add Admin")
             }
             Spacer(modifier = Modifier.height(8.dp))
+
             if(showBadPass){
                 Text(
                     text = stringResource(R.string.Password_not_good),
