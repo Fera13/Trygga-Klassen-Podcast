@@ -18,7 +18,7 @@ class ImageUploader(private val storageRef: StorageReference) {
             val downloadUrl = taskSnapshot.metadata?.reference?.downloadUrl.toString()
             callback(downloadUrl)
         }.addOnFailureListener { exception ->
-            callback(null) // Handle the failure case by passing null
+            callback(null)
         }
     }
 }

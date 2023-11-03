@@ -22,7 +22,7 @@ class EpisodeFetcher {
             }
             callback(episodes)
         }.addOnFailureListener { exception ->
-            // Handle the failure
+            Log.e("EpisodeFetcher", "Failed to fetch episodes: ${exception.message}")
         }
     }
 
@@ -40,7 +40,10 @@ class EpisodeFetcher {
             }
             callback(comments)
         }.addOnFailureListener { exception ->
-            // Handle the failure
+            Log.e(
+                "EpisodeFetcher",
+                "Failed to fetch comments for episode $episodeId: ${exception.message}"
+            )
         }
     }
 }
