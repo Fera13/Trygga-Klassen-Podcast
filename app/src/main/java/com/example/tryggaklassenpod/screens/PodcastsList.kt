@@ -51,45 +51,45 @@ fun PodcastsList(navController: NavController) {
 //                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically ,
 
-            ) {
+                ) {
                 Column(
                     modifier = Modifier.weight(2f)
                 ) {
-                Text(text =
-                episode.title,
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
+                    Text(text =
+                    episode.title,
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .padding(16.dp)
                 ) {
-                Button(
-                    onClick = {navController.navigate("editPodcasts/${episode.id}") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp)
-                ) {
-                    Text("Edit")
-                }
-                Button(
-                    onClick = {
-                        val podcastId = episode.id.toString()
-                        deletePodcast(podcastId, context)
-                        episodeFetcher.fetchEpisodes { fetchedEpisodes ->
-                            episodes = fetchedEpisodes as List<Episode>
+                    Button(
+                        onClick = {navController.navigate("editPodcasts/${episode.id}") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        Text("Edit")
+                    }
+                    Button(
+                        onClick = {
+                            val podcastId = episode.id.toString()
+                            deletePodcast(podcastId, context)
+                            episodeFetcher.fetchEpisodes { fetchedEpisodes ->
+                                episodes = fetchedEpisodes as List<Episode>
                             }
-                       },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Delete")
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Delete")
+                    }
                 }
             }
         }
     }
-}
 }

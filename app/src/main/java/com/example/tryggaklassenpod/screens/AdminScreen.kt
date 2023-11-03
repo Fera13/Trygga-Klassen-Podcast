@@ -31,6 +31,8 @@ import com.example.tryggaklassenpod.ui.theme.TryggaKlassenPodTheme
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,4 +151,10 @@ fun AdminScreen(navController: NavController) {
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AdminPreview(){
+    AdminScreen(rememberNavController())
 }

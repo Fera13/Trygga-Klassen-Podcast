@@ -6,7 +6,7 @@ import android.util.Log
 import com.google.firebase.storage.StorageReference
 
 class AudioUploader(
-    private val storageRef: StorageReference
+    private val storageRef: StorageReference,
 ) {
     fun uploadAudio(audioUri: Uri, callback: (String?) -> Unit) {
         // Generate a unique storage reference for the audio file
@@ -26,3 +26,4 @@ class AudioUploader(
         }
     }
 }
+
