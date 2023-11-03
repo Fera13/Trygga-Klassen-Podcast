@@ -29,7 +29,7 @@ import com.example.tryggaklassenpod.screens.HomeScreen
 import com.example.tryggaklassenpod.screens.LoginScreen
 import com.example.tryggaklassenpod.screens.OwnerPageContent
 import com.example.tryggaklassenpod.screens.PlayerScreen
-import com.example.tryggaklassenpod.screens.PodcastViewModel
+import com.example.tryggaklassenpod.viewModels.PodcastViewModel
 import com.example.tryggaklassenpod.screens.PodcastsList
 import com.example.tryggaklassenpod.screens.Screen
 import com.example.tryggaklassenpod.screens.UploadPodcast

@@ -30,6 +30,7 @@ import coil.compose.AsyncImage
 import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.dataClasses.Episode
 import com.example.tryggaklassenpod.ui.components.ErrorScreen
+import com.example.tryggaklassenpod.viewModels.PodcastViewModel
 
 @Composable
 fun PlayerScreen(
