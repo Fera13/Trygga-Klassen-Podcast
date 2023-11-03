@@ -1,4 +1,4 @@
-package com.example.tryggaklassenpod.veiwModel
+package com.example.tryggaklassenpod.viewModels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

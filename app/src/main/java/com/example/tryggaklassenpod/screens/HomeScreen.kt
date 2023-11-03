@@ -1,8 +1,6 @@
 package com.example.tryggaklassenpod.screens
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -32,20 +30,16 @@ import androidx.navigation.NavController
 import com.example.tryggaklassenpod.dataClasses.Episode
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.example.tryggaklassenpod.veiwModel.HomeViewModel
+import com.example.tryggaklassenpod.viewModels.HomeViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.externalResources.HighPriorityPodcast
-import com.example.tryggaklassenpod.externalResources.MixcloudEmbedActivity
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")

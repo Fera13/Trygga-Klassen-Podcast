@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import com.example.tryggaklassenpod.navigations.Navigation
 import com.example.tryggaklassenpod.ui.theme.TryggaKlassenPodTheme
-import com.example.tryggaklassenpod.veiwModel.HomeViewModel
+import com.example.tryggaklassenpod.viewModels.HomeViewModel
 import com.google.firebase.FirebaseApp
 import java.io.File
 
