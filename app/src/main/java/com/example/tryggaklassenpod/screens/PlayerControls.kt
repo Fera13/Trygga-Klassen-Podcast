@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.tryggaklassenpod.R
 import com.example.tryggaklassenpod.helperFunctions.toHoursMinuteSeconds
 import com.example.tryggaklassenpod.ui.components.LoadingScreen
+import com.example.tryggaklassenpod.viewModels.PodcastViewModel
 import kotlinx.coroutines.delay
 
 

@@ -1,6 +1,6 @@
 package com.example.tryggaklassenpod.screens
 
-import android.content.Context
+
 import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -36,8 +36,12 @@ import androidx.compose.foundation.layout.Column
 import com.example.tryggaklassenpod.helperFunctions.Authentication
 import com.example.tryggaklassenpod.helperFunctions.ImageUploader
 import android.widget.Toast
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import com.example.tryggaklassenpod.MainActivity
 import com.example.tryggaklassenpod.helperFunctions.getNextId
 import kotlinx.coroutines.launch
@@ -115,6 +119,7 @@ fun UploadPodcast(navController: NavController) {
     ) { imageUri: Uri? ->
         if (imageUri != null) {
             Log.d("YourTag", "imageUri: $imageUri")
+
             selectedImageFileName = imageUri.lastPathSegment
             val imageStorageRef = storageReference.child("images/${selectedImageFileName}")
             imageUrl = imageStorageRef.toString()
@@ -151,7 +156,9 @@ fun UploadPodcast(navController: NavController) {
     }
 
     Column(
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState())
     )
     {
         Text(
@@ -208,7 +215,9 @@ fun UploadPodcast(navController: NavController) {
         } else {
             OutlinedTextField(
                 value = selectedFileName!!,
+
                 onValueChange = { },
+
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp)
@@ -217,6 +226,7 @@ fun UploadPodcast(navController: NavController) {
         Button(
             onClick = {
                 filePickerLauncher.launch("audio/*")
+
                 }
         ) {
             Text(text = "Upload podcast")
@@ -259,6 +269,7 @@ fun UploadPodcast(navController: NavController) {
             Button(
                 onClick = {
                     if (downloadUrl.isNotEmpty()) {
+
                         // Get the next available ID
                         getNextId { newId ->
                             val newEpisodeReference = databaseReference
@@ -293,6 +304,13 @@ fun UploadPodcast(navController: NavController) {
                 Text(text = "Done")
             }
 
+
         }
-                }
-            }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun UploadPreview(){
+    UploadPodcast(rememberNavController())
+}

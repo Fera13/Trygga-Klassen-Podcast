@@ -1,5 +1,6 @@
 package com.example.tryggaklassenpod.helperFunctions
 
+import android.util.Log
 import com.example.tryggaklassenpod.dataClasses.Comments
 import com.google.firebase.database.FirebaseDatabase
 
@@ -19,11 +20,11 @@ fun fetchUnapprovedComments(episodeId: Int, onCommentsFetched: (List<Pair<String
                 }
             }
             onCommentsFetched(unapprovedComments)
-        }.addOnFailureListener { exception ->
-            // Handle the failure
+        }.addOnFailureListener { innerException ->
+            Log.e("FetchCommentsInner", "Failed to fetch comments: ${innerException.message}")
         }
-    }.addOnFailureListener { exception ->
-        // Handle the failure
+    }.addOnFailureListener { outerException ->
+        Log.e("FetchCommentsOuter", "Failed to fetch comments: ${outerException.message}")
     }
 }
 

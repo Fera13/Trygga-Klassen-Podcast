@@ -39,6 +39,8 @@ import com.example.tryggaklassenpod.dataClasses.Comments
 import com.example.tryggaklassenpod.dataClasses.episodesList
 import com.example.tryggaklassenpod.helperFunctions.UsernameGenerator
 import com.example.tryggaklassenpod.helperFunctions.getCreatedAtFormatted
+import com.example.tryggaklassenpod.viewModels.PodcastViewModel
+import com.example.tryggaklassenpod.viewModels.SubmitCommentUiState
 
 @Composable
 fun CommentsSection(comments: List<Comments>, episodeId: Int, viewModel: PodcastViewModel) {

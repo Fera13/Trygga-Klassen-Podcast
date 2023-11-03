@@ -116,79 +116,6 @@ fun viewComments(episodeId: Int) {
     }
 }
 
-//@Composable
-//fun viewComments(episodeId: Int) {
-//    var commentsWithTitles by remember { mutableStateOf(emptyList<Pair<String, Comments>>()) }
-//    val context = LocalContext.current
-//
-//    LaunchedEffect(episodeId) {
-//        fetchUnapprovedComments(episodeId) { fetchedCommentsWithTitles ->
-//            commentsWithTitles = fetchedCommentsWithTitles
-//        }
-//    }
-//
-//        val uniqueEpisodeTitles = commentsWithTitles.map { it.first }.distinct()
-//
-//
-//    LazyColumn {
-//        uniqueEpisodeTitles.forEach { episodeTitle ->
-//            val commentsForEpisode = commentsWithTitles.filter { it.first == episodeTitle }.map { it.second }
-//
-//            item {
-//                Spacer(modifier = Modifier.height(16.dp))
-//                Text(
-//                    text = episodeTitle,
-//                    style = MaterialTheme.typography.bodyLarge,
-//                    modifier = Modifier.padding(8.dp)
-//                )
-//            }
-//
-//            itemsIndexed(commentsForEpisode) { commentIndex, comment ->
-//                Row(
-//                    modifier = Modifier.fillMaxWidth(),
-//                    horizontalArrangement = Arrangement.SpaceBetween,
-//                    verticalAlignment = Alignment.CenterVertically
-//                ) {
-//                    Box(modifier = Modifier.weight(1f)) {
-//                        Text(
-//                            text = comment.comment ?: "",
-//                            style = MaterialTheme.typography.bodyMedium,
-//                            modifier = Modifier.padding(8.dp)
-//                        )
-//                    }
-//                    Column(
-//                        modifier = Modifier
-//                            .padding(16.dp),
-//                    ) {
-//                        Button(
-//                            onClick = { publishComment(episodeId, comment, context)
-//                                fetchUnapprovedComments(episodeId) { fetchedCommentsWithTitles ->
-//                                    commentsWithTitles = fetchedCommentsWithTitles
-//                                }
-//                            },
-//                            modifier = Modifier.padding(8.dp),
-//
-//
-//                            ) {
-//                            Text("Publish")
-//                        }
-//                        Button(
-//                            onClick = { deleteComment(episodeId, comment, context)
-//                                fetchUnapprovedComments(episodeId) { fetchedCommentsWithTitles ->
-//                                    commentsWithTitles = fetchedCommentsWithTitles
-//                                }},
-//                            modifier = Modifier.padding(8.dp)
-//                        ) {
-//                            Text("Delete")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-
 fun publishComment(episodeId: Int, comment: Comments, context: android.content.Context) {
     val database = FirebaseDatabase.getInstance()
     val episodeReference = database.getReference("podcast").child("episodes").child(episodeId.toString())
@@ -215,4 +142,3 @@ fun deleteComment(episodeId: Int, comment: Comments,context: android.content.Con
             Toast.makeText(context, "deleted successfully", Toast.LENGTH_LONG).show()
         }
 }
-
