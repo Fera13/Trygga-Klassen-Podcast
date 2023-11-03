@@ -24,7 +24,7 @@ fun getNextId(callback: (Int) -> Unit) {
 
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Handle the error
+                Log.e("GetNextIdError", "Error occurred while getting the next ID: ${databaseError.message}")
             }
         })
 }

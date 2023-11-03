@@ -1,5 +1,6 @@
 package com.example.tryggaklassenpod.helperFunctions
 
+import android.util.Log
 import com.example.tryggaklassenpod.dataClasses.Episode
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -19,7 +20,7 @@ fun getPodcastDetails(podcastId: String, callback: (Episode) -> Unit) {
        }
 
         override fun onCancelled(error: DatabaseError) {
-            // Handle the error if the data fetching is unsuccessful
+            Log.e("GetPodcastDetailsError", "Error occurred while getting podcast details: ${error.message}")
         }
     })
 }

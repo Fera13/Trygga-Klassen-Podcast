@@ -19,10 +19,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.tryggaklassenpod.dataClasses.Episode
 import com.example.tryggaklassenpod.helperFunctions.EpisodeFetcher
 
@@ -53,7 +56,7 @@ fun CommentReviewScreen(navController: NavController) {
 
                 ) {
                 Column(
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.weight(3f)
                 ) {
                     Text(
                         text =
@@ -66,7 +69,7 @@ fun CommentReviewScreen(navController: NavController) {
                 }
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(2f)
                         .padding(16.dp)
                 ) {
                     Button(
@@ -76,8 +79,9 @@ fun CommentReviewScreen(navController: NavController) {
                             .padding(bottom = 8.dp)
                     ) {
                         Text(
-                            text = "View Comment",
-                            style = MaterialTheme.typography.bodySmall
+                            text = "View Comments",
+                            style = MaterialTheme.typography.bodySmall,
+                            textAlign = TextAlign.Center
                         )
                     }
                 }

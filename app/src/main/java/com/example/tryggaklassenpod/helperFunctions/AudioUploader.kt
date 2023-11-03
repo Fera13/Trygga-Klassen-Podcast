@@ -22,7 +22,7 @@ class AudioUploader(
             Log.d("YourTag", "downloadUrl: $downloadUrl")
             callback(downloadUrl)
         }.addOnFailureListener { exception ->
-            callback(null) // Handle the failure case by passing null
+            callback(null)
         }
     }
 }
