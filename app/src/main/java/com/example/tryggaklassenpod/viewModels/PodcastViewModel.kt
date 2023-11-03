@@ -1,4 +1,4 @@
-package com.example.tryggaklassenpod.screens
+package com.example.tryggaklassenpod.viewModels
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
