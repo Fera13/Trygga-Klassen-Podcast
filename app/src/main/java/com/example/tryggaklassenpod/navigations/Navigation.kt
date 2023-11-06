@@ -34,7 +34,7 @@ import com.example.tryggaklassenpod.screens.PodcastsList
 import com.example.tryggaklassenpod.screens.Screen
 import com.example.tryggaklassenpod.screens.UploadPodcast
 import com.example.tryggaklassenpod.screens.viewComments
-import com.example.tryggaklassenpod.veiwModel.HomeViewModel
+import com.example.tryggaklassenpod.viewModels.HomeViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
